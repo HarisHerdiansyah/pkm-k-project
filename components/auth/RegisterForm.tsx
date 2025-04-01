@@ -5,13 +5,7 @@ import Image from 'next/image';
 import { ChangeEvent, FormEvent } from 'react';
 import { useImmer } from 'use-immer';
 import LoaderOverlay from '@/components/LoaderOverlay';
-
-type Payload = {
-  fullname: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
+import { Payload, registerUser } from '@/services/auth';
 
 export default function RegisterForm() {
   const [state, setState] = useImmer<{ loading: boolean; data: Payload }>({
@@ -32,21 +26,16 @@ export default function RegisterForm() {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      setState((draft) => {
-        draft.loading = true;
-      });
-      await fetch('/api/auth/register', {
-        method: 'post',
-        body: JSON.stringify(state),
-      });
-    } catch (e) {
-      throw e;
-    } finally {
-      setState((draft) => {
-        draft.loading = false;
-      });
-    }
+
+    setState((draft) => {
+      draft.loading = true;
+    });
+
+    await registerUser(state.data);
+
+    setState((draft) => {
+      draft.loading = false;
+    });
   };
 
   if (state.loading) return <LoaderOverlay loading={state.loading} />;
@@ -64,63 +53,35 @@ export default function RegisterForm() {
         height={69}
       />
       <section className='space-y-4'>
-        <div className='flex flex-col gap-y-1.5'>
-          <label htmlFor='fullname'>Full Name:</label>
-          <input
-            className='rounded-lg border border-gray-200 px-4 py-2 focus:outline-none'
-            autoComplete='off'
-            type='text'
-            name='fullname'
-            id='fullname'
-            value={state.data.fullname}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <div className='flex flex-col gap-y-1.5'>
-          <label htmlFor='email'>Email:</label>
-          <input
-            className='rounded-lg border border-gray-200 px-4 py-2 focus:outline-none'
-            autoComplete='off'
-            type='email'
-            name='email'
-            id='email'
-            value={state.data.email}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <div className='flex flex-col gap-y-1.5'>
-          <label htmlFor='password'>Password:</label>
-          <input
-            className='rounded-lg border border-gray-200 px-4 py-2 focus:outline-none'
-            autoComplete='off'
-            type='password'
-            name='password'
-            id='password'
-            value={state.data.password}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <div className='flex flex-col gap-y-1.5'>
-          <label htmlFor='confirmPassword'>Password:</label>
-          <input
-            className='rounded-lg border border-gray-200 px-4 py-2 focus:outline-none'
-            autoComplete='off'
-            type='password'
-            name='confirmPassword'
-            id='confirmPassword'
-            value={state.data.confirmPassword}
-            onChange={onChange}
-            required
-          />
-        </div>
+        {[
+          { label: 'Full Name', id: 'fullname', type: 'text' },
+          { label: 'Email', id: 'email', type: 'email' },
+          { label: 'Password', id: 'password', type: 'password' },
+          {
+            label: 'Confirm Password',
+            id: 'confirmPassword',
+            type: 'password',
+          },
+        ].map(({ label, id, type }) => (
+          <div key={id} className='flex flex-col gap-y-1.5'>
+            <label htmlFor={id}>{label}:</label>
+            <input
+              className='rounded-lg border border-gray-200 px-4 py-2 focus:outline-none'
+              autoComplete='off'
+              type={type}
+              name={id}
+              id={id}
+              value={state.data[id as keyof Payload]}
+              onChange={onChange}
+              required
+            />
+          </div>
+        ))}
       </section>
       <p className='my-10 text-center text-sm'>
         Already have an account?{' '}
-        <Link href='/login'>
-          <span className='cursor-pointer hover:underline'>Login here</span>
+        <Link href='/login' className='cursor-pointer hover:underline'>
+          Login here
         </Link>
       </p>
       <button
