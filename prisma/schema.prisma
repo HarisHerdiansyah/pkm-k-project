@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum SubsPlan {
+  BRONZE
+  SILVER
+  GOLD
+}
+
+enum CustomerSubsStatus {
+  INACTIVE
+  ACTIVE
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+  CANCELED
+}
+
+enum MarketSource {
+  SHOPEE
+}
+
+enum TransactionCategory {
+  SUBSCRIPTION
+}
+
+enum Phobia {
+  ACROPHOBIA
+  CLAUSTROPHOBIA
+  PHASMOPHOBIA
+  THALASSOPHOBIA
+  TRYPOPHOBIA
+  ZOOPHOBIA
+}
+
+model Users {
+  user_id             String             @id @default(uuid())
+  fullname            String             @db.VarChar(100)
+  subscription_status CustomerSubsStatus @default(INACTIVE)
+  subscription_plan   SubsPlan?
+  role                Role               @default(CUSTOMER)
+  profile_image_link  String?
+  email               String             @unique
+  password            String
+  register_at         DateTime           @default(now())
+  transaction         Transaction[]
+}
+
+model Transaction {
+  transaction_id        String              @id @default(uuid())
+  transaction_timestamp DateTime            @default(now())
+  status                TransactionStatus   @default(PENDING)
+  user_id               String
+  transaction_detail    TransactionDetail[]
+  user_id_fk            Users?              @relation(fields: [user_id], references: [user_id])
+}
+
+model TransactionDetail {
+  id                String              @id @default(uuid())
+  transaction_id    String
+  item_name         String              @default("") @db.VarChar(100)
+  category          TransactionCategory @default(SUBSCRIPTION)
+  quantity          Int                 @default(0)
+  amount            Float               @default(0.0)
+  payment_method    String
+  transaction_id_fk Transaction?        @relation(fields: [transaction_id], references: [transaction_id])
+}
+
+model Products {
+  product_id    String         @id @default(uuid())
+  item_name     String         @default("") @db.VarChar(100)
+  price         Float          @default(1000.0)
+  description   String         @default("")
+  product_image ProductImage[]
+  product_links ProductLinks[]
+}
+
+model ProductImage {
+  product_id    String
+  image_id      String   @id @default(uuid())
+  image_link    String   @default("")
+  product_id_fk Products @relation(fields: [product_id], references: [product_id])
+}
+
+model ProductLinks {
+  product_id    String
+  link_id       String       @id @default(uuid())
+  link          String       @default("")
+  market_src    MarketSource @default(SHOPEE)
+  product_id_fk Products     @relation(fields: [product_id], references: [product_id])
+}
+
+model Articles {
+  article_id String     @id @default(uuid())
+  title      String     @db.VarChar(255)
+  cover      String     @default("")
+  content    String     @default("")
+  status     PostStatus
+  created_at DateTime   @default(now())
+  updated_at DateTime   @default(now()) @updatedAt
+}
+
+model Subscription {
+  subs_id     String   @id @default(uuid())
+  plan_name   SubsPlan
+  price       Float    @default(0.0)
+  description String
+}
+
+model VRContents {
+  content_id      String     @id @default(uuid())
+  title           String     @db.VarChar(255)
+  source_link     String     @default("")
+  duration        Int        @default(0)
+  phobia_category Phobia
+  status          PostStatus
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @default(now()) @updatedAt
+}
