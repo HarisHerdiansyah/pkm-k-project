@@ -25,7 +25,7 @@ export default function LoginForm() {
     e.preventDefault();
     await signIn('credentials', {
       ...credentials,
-      redirect: false,
+      callbackUrl: '/home',
     });
   };
 

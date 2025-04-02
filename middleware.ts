@@ -26,6 +26,11 @@ export async function middleware(req: NextRequest) {
     );
   }
 
+  // ? After login all user will redirect to /home
+  if (req.nextUrl.pathname.startsWith('/home') && token.role === 'ADMIN') {
+    return NextResponse.redirect(new URL('/cms/dashboard', requestOrigin));
+  }
+
   return NextResponse.next();
 }
 

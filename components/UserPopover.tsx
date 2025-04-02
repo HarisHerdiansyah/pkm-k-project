@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { CircleUserRound, LogOut } from 'lucide-react';
+import { signOut } from 'next-auth/react';
 import {
   Popover,
   PopoverContent,
@@ -27,7 +28,7 @@ export default function UserPopover() {
           </li>
           <li
             className='cursor-pointer flex gap-1.5 text-red-500'
-            onClick={() => router.replace('/')}
+            onClick={() => signOut()}
           >
             <LogOut />
             Logout

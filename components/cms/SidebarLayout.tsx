@@ -22,6 +22,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import Image from 'next/image';
+import { signOut } from 'next-auth/react';
 
 const menuItem = [
   {
@@ -111,11 +112,14 @@ export default function SidebarLayout() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem className='rounded-md'>
-            <SidebarMenuButton className='bg-red-600 text-white' asChild>
-              <Link href='/'>
-                <LogOut />
-                Logout
-              </Link>
+            <SidebarMenuButton
+              className='bg-red-500 cursor-pointer hover:bg-red-600 hover:text-white text-white'
+              onClick={() => signOut()}
+              asChild
+            >
+              <span>
+                <LogOut /> Logout
+              </span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
