@@ -58,3 +58,15 @@ export function errorHandler(error: {
     { status: error.status },
   );
 }
+
+export function formDataToObject(formData: FormData) {
+  const object: Record<string, unknown> = {};
+  for (const [k, v] of formData) {
+    if (object[k]) {
+      object[k] = Array.isArray(object[k]) ? [...object[k], v] : [object[k], v];
+    } else {
+      object[k] = v;
+    }
+  }
+  return object;
+}

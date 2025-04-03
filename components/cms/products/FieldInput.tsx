@@ -1,10 +1,10 @@
 import Image from 'next/image';
 import { ChangeEvent } from 'react';
+import { Updater } from 'use-immer';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Updater } from 'use-immer';
-import { MarketplaceLink, ProductPayload } from './ProductForm';
+import { ProductPayload } from './ProductForm';
 
 export default function FieldInput({
   product,
@@ -18,7 +18,7 @@ export default function FieldInput({
   ) => {
     setProduct((draft) => {
       if (e.target.name && e.target.id.includes('marketplace')) {
-        const key = e.target.name as keyof MarketplaceLink;
+        const key = e.target.name;
         draft.marketplaceLink[key] = e.target.value;
       } else {
         draft[e.target.id as keyof ProductPayload] = e.target.value as never;
@@ -68,40 +68,18 @@ export default function FieldInput({
         <div id='form-control' className='space-y-3.5'>
           <p>Marketplace Link:</p>
           <div className='flex gap-x-3'>
-            <Image src='/svg/shopee.svg' alt='Shopee' width={28} height={28} />
-            <Input
-              id='marketplaceLink'
-              name='shopeeLink'
-              type='text'
-              autoComplete='off'
-              value={product.marketplaceLink.shopeeLink}
-              onChange={onFieldInputChange}
-            />
-          </div>
-          <div className='flex gap-x-2'>
             <Image
-              src='/svg/whatsapp.svg'
-              alt='WhatsApp'
-              width={32}
-              height={32}
+              src='/svg/shopee.svg'
+              alt='Shopee'
+              width={28}
+              height={28}
             />
             <Input
               id='marketplaceLink'
-              name='whatsappLink'
+              name='shopee'
               type='text'
               autoComplete='off'
-              value={product.marketplaceLink.whatsappLink}
-              onChange={onFieldInputChange}
-            />
-          </div>
-          <div className='flex gap-x-3'>
-            <Image src='/svg/gmail.svg' alt='Gmail' width={26} height={32} />
-            <Input
-              id='marketplaceLink'
-              name='gmailLink'
-              type='text'
-              autoComplete='off'
-              value={product.marketplaceLink.gmailLink}
+              value={product.marketplaceLink.shopee}
               onChange={onFieldInputChange}
             />
           </div>

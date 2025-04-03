@@ -21,7 +21,7 @@ export default function ImageInput({
     onDrop: (acceptedFiles) => {
       const files = acceptedFiles.map((accFile: File) => {
         return {
-          id: uuidv4(),
+          key: uuidv4(),
           preview: URL.createObjectURL(accFile),
           name: accFile.name,
           fileData: accFile,
@@ -33,9 +33,9 @@ export default function ImageInput({
     },
   });
 
-  const onDeleteDroppedFile = (id: string) => {
+  const onDeleteDroppedFile = (key: string) => {
     setProduct((draft) => {
-      const i = draft.productImage.findIndex((d) => d.id === id);
+      const i = draft.productImage.findIndex((d) => d.key === key);
       if (i !== -1) draft.productImage.splice(i, 1);
     });
   };
@@ -43,7 +43,6 @@ export default function ImageInput({
   return (
     <div id='image-input' className='my-5'>
       <h3 className='text-lg mb-2'>Image Input</h3>
-
       <div className='grid grid-cols-2 gap-x-6'>
         <div
           {...getRootProps()}
@@ -55,10 +54,10 @@ export default function ImageInput({
         {product.productImage.length > 0 && (
           <div className='flex flex-wrap gap-2 max-h-[500px] overflow-y-auto border-2 border-dashed border-gray-400 p-2'>
             {product.productImage.map((file) => (
-              <div key={file.id} className=' relative'>
+              <div key={file.key} className=' relative'>
                 <div
                   className='w-8 h-8 bg-red-500 hover:bg-red-600 cursor-pointer rounded-md flex items-center justify-center absolute right-[6] top-[6]'
-                  onClick={() => onDeleteDroppedFile(file.id)}
+                  onClick={() => onDeleteDroppedFile(file.key)}
                 >
                   <Trash2 color='white' />
                 </div>

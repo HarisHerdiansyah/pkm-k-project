@@ -16,6 +16,12 @@ export async function middleware(req: NextRequest) {
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   if (!token) {
+    if (req.nextUrl.pathname.startsWith('/api')) {
+      return NextResponse.json(
+        { message: 'Request Not Allowed' },
+        { status: ERROR.FORBIDDEN },
+      );
+    }
     return NextResponse.redirect(new URL('/login', requestOrigin));
   }
 
@@ -36,9 +42,9 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/api/cms/:path*',
+    '/api/cms/:path',
     '/vr',
-    '/cms/:path*',
+    '/cms/:path',
     '/home',
     '/product',
     '/profile',

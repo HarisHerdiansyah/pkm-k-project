@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -8,15 +9,46 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { PlusCircle } from 'lucide-react';
+import { db } from '@/lib/prisma';
+import type { Products } from '@prisma/client';
+import { toIDR } from '@/lib/utils';
+import { BtnAction } from '@/components/cms/products';
 
-const products = [
-  { id: 1, name: 'Product A', price: 19.99, stock: 100 },
-  { id: 2, name: 'Product B', price: 29.99, stock: 50 },
-  { id: 3, name: 'Product C', price: 39.99, stock: 75 },
-];
+function ProductTable({ dataProducts }: { dataProducts: Products[] }) {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>No</TableHead>
+          <TableHead>Name</TableHead>
+          <TableHead>Price</TableHead>
+          <TableHead>Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody className='table-fixed'>
+        {dataProducts.map((prod, i) => (
+          <TableRow key={prod.product_id}>
+            <TableCell>{i + 1}</TableCell>
+            <TableCell>{prod.item_name}</TableCell>
+            <TableCell>{toIDR(prod.price)}</TableCell>
+            <BtnAction id={prod.product_id} />
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
 
-export default function page() {
+export default async function Products() {
+  const dataProducts = await db.products.findMany({
+    select: {
+      product_id: true,
+      item_name: true,
+      price: true,
+      description: true,
+    },
+  });
+
   return (
     <div className='space-y-6'>
       <div className='flex justify-end items-center'>
@@ -26,40 +58,11 @@ export default function page() {
           </Button>
         </Link>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>No</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>Stock</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody className='table-fixed'>
-          {products.map((product) => (
-            <TableRow key={product.id}>
-              <TableCell>{product.id}</TableCell>
-              <TableCell>{product.name}</TableCell>
-              <TableCell>${product.price.toFixed(2)}</TableCell>
-              <TableCell>{product.stock}</TableCell>
-              <TableCell className='space-x-3'>
-                <Link href='/cms/products/edit'>
-                  <Button
-                    size='sm'
-                    className='bg-yellow-400 hover:bg-yellow-500 text-black border-none'
-                  >
-                    Edit
-                  </Button>
-                </Link>
-                <Button variant='destructive' size='sm'>
-                  Delete
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      {dataProducts.length > 0 ? (
+        <ProductTable dataProducts={dataProducts} />
+      ) : (
+        <h1 className='text-center'>-- Product Empty --</h1>
+      )}
     </div>
   );
 }
